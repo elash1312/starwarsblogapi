@@ -21,7 +21,7 @@ class User(db.Model):
         }
 class Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String(80))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User')
 
@@ -35,10 +35,10 @@ class Favorites(db.Model):
 
 class Characters(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    height = db.Column(db.String)
-    hair_color = db.Column(db.String)
-    eye_color = db.Column(db.String)
+    name = db.Column(db.String(80))
+    height = db.Column(db.String(80))
+    hair_color = db.Column(db.String(80))
+    eye_color = db.Column(db.String(80))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User')
 
