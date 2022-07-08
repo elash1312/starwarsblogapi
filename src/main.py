@@ -30,23 +30,29 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    users = User.query.all()
+    users_serialized = [user.serialize()for user in users]
 
-    return jsonify(response_body), 200
+    return jsonify(users_serialized), 200
 
-@app.route('/characters', methods=['GET'])
+@app.route('/people', methods=['GET'])
 def get_all_characters():
     characters = Characters.query.all()
     characters_serialized = [character.serialize()for character in characters]
 
     return jsonify(characters_serialized), 200
 
-@app.route('/characters', methods=['POST'])
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_character(people_id):
+    character = Characters.query.filter_by(id=people_id).first()
+    
+
+    return jsonify(character.serialize()), 200
+
+@app.route('/people', methods=['POST'])
 def create_characters():
     data = request.get_json()
     for item in data:
@@ -63,6 +69,13 @@ def get_all_planets():
 
     return jsonify(planets_serialized), 200
 
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_planet(planet_id):
+    planet = Planets.query.filter_by(id=planet_id).first()
+    
+
+    return jsonify(planet.serialize()), 200
+
 @app.route('/planets', methods=['POST'])
 def create_planets():
     data = request.get_json()
@@ -73,6 +86,35 @@ def create_planets():
 
     return jsonify("planets added"), 200
 
+@app.route('/favorites/<int:id>', methods=['GET'])
+def get_user_favorites(id):
+    favorites = Favorites.query.filter_by(user_id=id)
+    favorites_serialized = [favorite.serialize()for favorite in favorites]
+
+    return jsonify(favorites_serialized), 200
+
+@app.route('/users/<int:user_id>/favorites', methods=['POST'])
+def create_user_favorite(user_id):
+    data = request.get_json()
+    
+    favorite = Favorites(name = data["name"], user_id = user_id)
+    db.session.add(favorite)
+    db.session.commit()
+    favorites = Favorites.query.filter_by(user_id=user_id)
+    favorites_serialized = [favorite.serialize()for favorite in favorites]
+
+    return jsonify(favorites_serialized), 200
+
+@app.route('/users/<int:user_id>/favorites/<int:favorite_id>', methods=['DELETE'])
+def delete_user_favorite(user_id, favorite_id):
+
+    favorite = Favorites.query.filter_by(user_id=user_id, id=favorite_id).first()
+    db.session.delete(favorite)
+    db.session.commit()
+    favorites = Favorites.query.filter_by(user_id=user_id)
+    favorites_serialized = [favorite.serialize()for favorite in favorites]
+
+    return jsonify(favorites_serialized), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
