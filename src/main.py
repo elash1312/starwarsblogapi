@@ -56,6 +56,23 @@ def create_characters():
 
     return jsonify("characters added"), 200
 
+@app.route('/planets', methods=['GET'])
+def get_all_planets():
+    planets = Planets.query.all()
+    planets_serialized = [planet.serialize()for planet in planets]
+
+    return jsonify(planets_serialized), 200
+
+@app.route('/planets', methods=['POST'])
+def create_planets():
+    data = request.get_json()
+    for item in data:
+        planet = Planets(name = item["name"], rotation_period = item["rotation_period"], orbital_period = item["orbital_period"], terrain = item["terrain"])
+        db.session.add(planet)
+        db.session.commit()
+
+    return jsonify("planets added"), 200
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
